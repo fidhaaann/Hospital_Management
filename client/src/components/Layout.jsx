@@ -72,7 +72,7 @@ export default function Layout({ children, pageTitle, toast }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                <i className="fas fa-heart-pulse" style={{ color: 'var(--accent-primary)', fontSize: '1.4rem' }} />
                <div>
-                 <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '1.25rem', color: 'var(--text-primary)', lineHeight: 1 }}>
+                 <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 400, fontSize: '1.4rem', letterSpacing: '0.1em', color: 'var(--text-primary)', lineHeight: 1 }}>
                    MediCore
                  </div>
                </div>
@@ -158,7 +158,7 @@ export default function Layout({ children, pageTitle, toast }) {
           padding: '16px 32px', display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100,
         }}>
-          <h5 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>{pageTitle}</h5>
+          <h5 style={{ margin: 0, fontSize: '1.4rem', fontFamily: 'var(--font-heading)', letterSpacing: '0.08em', color: 'var(--text-primary)' }}>{pageTitle}</h5>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
@@ -202,7 +202,7 @@ export default function Layout({ children, pageTitle, toast }) {
                display: 'flex', flexDirection: 'column'
             }}>
                <div style={{ padding: '24px 28px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: '1.4rem' }}>Notifications</h3>
+                  <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', fontSize: '1.4rem' }}>Notifications</h3>
                   <button className="btn-icon" onClick={() => setShowDrawer(false)}><i className="fas fa-times"></i></button>
                </div>
                <div style={{ padding: '24px 28px', flex: 1, overflowY: 'auto' }}>
