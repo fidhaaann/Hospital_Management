@@ -1,1 +1,220 @@
-# =ƒÅÑ MediCore GÇö Hospital Management SystemA full-stack Hospital Management System built with **React 18**, **Node.js**, **Express.js**, and **MySQL**. Converted from the original Flask + MySQL version with an improved UI, same features, and all SQL concepts intact.---## =ƒ¢á Tech Stack| Layer      | Technology                          ||------------|-------------------------------------|| Frontend   | React 18, React Router v6, Axios    || Backend    | Node.js, Express.js, express-session|| Database   | MySQL 8.0 / MariaDB 10.6+           || Auth       | Session-based (express-session) + bcryptjs || Styling    | Custom CSS design system (no UI framework) |---## =ƒôü Project Structure```hospital_react/Gö£GöÇGöÇ schema.sql              GåÉ Run this first to set up the DBGö£GöÇGöÇ README.mdGöéGö£GöÇGöÇ server/                 GåÉ Express API (Node.js)Göé   Gö£GöÇGöÇ index.js            GåÉ App entry point, routes mountedGöé   Gö£GöÇGöÇ db.js               GåÉ mysql2 connection poolGöé   Gö£GöÇGöÇ .env                GåÉ DB config (edit this)Göé   Gö£GöÇGöÇ middleware/Göé   Göé   GööGöÇGöÇ auth.js         GåÉ requireLogin, requireRoleGöé   GööGöÇGöÇ routes/Göé       Gö£GöÇGöÇ auth.js         GåÉ login, logout, /meGöé       Gö£GöÇGöÇ dashboard.js    GåÉ stats, JOINs, VIEWsGöé       Gö£GöÇGöÇ patients.js     GåÉ CRUDGöé       Gö£GöÇGöÇ doctors.js      GåÉ CRUD + fee APIGöé       Gö£GöÇGöÇ appointments.js GåÉ schedule, status updateGöé       Gö£GöÇGöÇ prescriptions.jsGöé       Gö£GöÇGöÇ bills.js        GåÉ bill generation (transaction)Göé       Gö£GöÇGöÇ medicines.js    GåÉ CRUDGöé       Gö£GöÇGöÇ wards.js        GåÉ ward_occupancy VIEWGöé       Gö£GöÇGöÇ analytics.js    GåÉ revenue VIEW + breakdownsGöé       GööGöÇGöÇ users.js        GåÉ admin user managementGöéGööGöÇGöÇ client/                 GåÉ React 18 SPA    Gö£GöÇGöÇ public/index.html    GööGöÇGöÇ src/        Gö£GöÇGöÇ App.jsx          GåÉ Router + auth guards        Gö£GöÇGöÇ index.js / index.css        Gö£GöÇGöÇ api.js           GåÉ Axios instance (proxy GåÆ :5000)        Gö£GöÇGöÇ context/        Göé   GööGöÇGöÇ AuthContext.jsx        Gö£GöÇGöÇ hooks/        Göé   GööGöÇGöÇ useToast.js        Gö£GöÇGöÇ components/        Göé   Gö£GöÇGöÇ Layout.jsx      GåÉ Sidebar + topbar shell        Göé   Gö£GöÇGöÇ Toast.jsx       GåÉ Notification toasts        Göé   GööGöÇGöÇ ConfirmDialog.jsx        GööGöÇGöÇ pages/            Gö£GöÇGöÇ Login.jsx            Gö£GöÇGöÇ Dashboard.jsx            Gö£GöÇGöÇ Patients.jsx            Gö£GöÇGöÇ Doctors.jsx            Gö£GöÇGöÇ Appointments.jsx            Gö£GöÇGöÇ Prescriptions.jsx            Gö£GöÇGöÇ Bills.jsx            Gö£GöÇGöÇ Medicines.jsx            Gö£GöÇGöÇ Wards.jsx            Gö£GöÇGöÇ Analytics.jsx            GööGöÇGöÇ Users.jsx```---## GÜí How to Run### Prerequisites- Node.js 18+- MySQL 8.0+ or XAMPP (MariaDB)- npm### Step 1 GÇö Set up the database```bashmysql -u root -p < schema.sql```Or open **phpMyAdmin**, create a new database called `hospital_db`, then import `schema.sql`.### Step 2 GÇö Configure the serverEdit `server/.env`:```envDB_HOST=localhostDB_USER=rootDB_PASSWORD=        GåÉ your MySQL root password (blank for XAMPP default)DB_NAME=hospital_dbSESSION_SECRET=medicore_hms_change_this_in_production_2024PORT=5000```### Step 3 GÇö Install dependencies & start**Terminal 1 GÇö Backend:**```bashcd servernpm installnpm start# API running at http://localhost:5000```**Terminal 2 GÇö Frontend:**```bashcd clientnpm installnpm start# App opens at http://localhost:3000```### Default Login Credentials| Username        | Password    | Role          ||-----------------|-------------|---------------|| `admin`         | `admin123`  | Administrator || `dr_smith`      | `doctor123` | Doctor        || `receptionist1` | `recep123`  | Receptionist  |---## G£¿ Features| Feature            | Admin | Doctor | Receptionist ||--------------------|-------|--------|--------------|| Dashboard + stats  | G£à    | G£à     | G£à           || Patients CRUD      | G£à    | =ƒæü      | G£à           || Appointments       | G£à    | =ƒæü      | G£à           || Prescriptions      | G£à    | G£à     | =ƒæü           || Billing            | G£à    | =ƒæü      | G£à           || Doctors CRUD       | G£à    | =ƒæü      | =ƒæü           || Pharmacy/Medicines | G£à    | =ƒæü      | =ƒæü           || Wards              | G£à    | G£à     | G£à           || Analytics          | G£à    | G£ù      | G£ù            || User Management    | G£à    | G£ù      | G£ù            |G£à = full access, =ƒæü = view only, G£ù = no access---## =ƒùä Database Tables| Table            | Description                              ||------------------|------------------------------------------|| `users`          | System users with roles                  || `doctors`        | Doctor profiles and consultation fees    || `wards`          | Hospital wards and bed counts            || `patients`       | Patient records with ward assignment     || `appointments`   | Doctor-patient appointments with time    || `prescriptions`  | Diagnoses and treatment notes            || `medicines`      | Pharmacy stock with minimum thresholds   || `bills`          | Patient bills (total auto-set by trigger)|| `bill_medicines` | Junction: medicines included in a bill   |---## =ƒöù JOIN QueriesThe dashboard uses a multi-table JOIN across three tables:```sqlSELECT p.patient_id, p.name AS patient_name, p.age, p.gender,       p.status, p.admission_date,       d.name AS doctor_name, d.specializationFROM patients pLEFT JOIN appointments a ON p.patient_id = a.patient_idLEFT JOIN doctors d      ON a.doctor_id  = d.doctor_idGROUP BY p.patient_idORDER BY p.patient_id DESCLIMIT 10;```Bills use an INNER JOIN with patients:```sqlSELECT b.*, p.name AS patient_nameFROM bills bJOIN patients p ON b.patient_id = p.patient_idORDER BY b.bill_date DESC;```---## =ƒôè Aggregate FunctionsUsed in the `revenue_summary` VIEW and the analytics endpoint:```sqlSELECT    COUNT(*)                                                AS total_bills,    SUM(total_amount)                                       AS total_revenue,    AVG(total_amount)                                       AS avg_bill_amount,    SUM(CASE WHEN payment_status='Paid' THEN total_amount ELSE 0 END) AS collected_revenue,    SUM(CASE WHEN payment_status='Pending' THEN total_amount ELSE 0 END) AS pending_revenueFROM bills;```Monthly patient admissions use `COUNT(*) ... GROUP BY MONTH(admission_date)`.---## =ƒæü Views (4 total)| View                  | Purpose                                            ||-----------------------|----------------------------------------------------|| `revenue_summary`     | SUM/AVG/COUNT over bills GÇö used in dashboard + analytics || `ward_occupancy`      | Derived `occupied_beds` and `occupancy_percent`    || `low_stock_medicines` | Medicines below minimum threshold                  || `doctor_view`         | Patient-prescription join (hides sensitive columns)|---## GÜí Triggers (5 total)| Trigger                     | Event              | Action                                        ||-----------------------------|--------------------|-----------------------------------------------|| `calculate_total`           | BEFORE INSERT bills| Sets `total_amount` = sum of all charge fields || `recalculate_total`         | BEFORE UPDATE bills| Recalculates `total_amount` on edit           || `reduce_stock`              | AFTER INSERT bill_medicines | Decrements `medicines.stock_quantity` || `reduce_beds_on_admission`  | AFTER INSERT patients | Decrements `wards.available_beds`         || `restore_beds_on_discharge` | BEFORE UPDATE patients | Increments `wards.available_beds`        |---## =ƒöÆ Security Notes- Passwords stored with **bcrypt** (new users via admin panel)- Seed data uses plain-text passwords for convenience GÇö login supports both- Sessions are HTTP-only cookies with 8-hour expiry- All DB queries use **parameterised placeholders** (`?`) GÇö no SQL injection risk- Role-based access control on every API route via `requireRole` middleware- Change `SESSION_SECRET` in `.env` before any production deployment
+# MediCore Hospital Management System
+
+A full-stack hospital management application built with React, Node.js, Express, and MySQL.
+
+It includes role-based access, patient workflows, appointments, prescriptions, billing, medicines, wards, analytics, and admin user management.
+
+## Highlights
+
+- Modern React dashboard with protected routes
+- Session-based authentication with role checks
+- Admin-managed accounts (no public self-signup)
+- MySQL-backed modules for core hospital operations
+- SQL features including joins, views, triggers, and aggregates
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 18, React Router v6, Axios |
+| Backend | Node.js, Express.js, express-session |
+| Database | MySQL 8.0+ (MariaDB compatible) |
+| Security | bcryptjs, server-side role middleware |
+| Styling | Custom CSS |
+
+## Project Structure
+
+```text
+hospital_react/
+|-- schema.sql
+|-- README.md
+|-- server/
+|   |-- index.js
+|   |-- db.js
+|   |-- .env
+|   |-- middleware/
+|   |   `-- auth.js
+|   `-- routes/
+|       |-- auth.js
+|       |-- dashboard.js
+|       |-- patients.js
+|       |-- doctors.js
+|       |-- appointments.js
+|       |-- prescriptions.js
+|       |-- bills.js
+|       |-- medicines.js
+|       |-- wards.js
+|       |-- analytics.js
+|       `-- users.js
+`-- client/
+	|-- public/
+	|   `-- index.html
+	`-- src/
+		|-- App.jsx
+		|-- index.js
+		|-- index.css
+		|-- api.js
+		|-- context/
+		|   `-- AuthContext.jsx
+		|-- hooks/
+		|   `-- useToast.js
+		|-- components/
+		|   |-- Layout.jsx
+		|   |-- Toast.jsx
+		|   `-- ConfirmDialog.jsx
+		`-- pages/
+			|-- Login.jsx
+			|-- Dashboard.jsx
+			|-- Patients.jsx
+			|-- Doctors.jsx
+			|-- Appointments.jsx
+			|-- Prescriptions.jsx
+			|-- Bills.jsx
+			|-- Medicines.jsx
+			|-- Wards.jsx
+			|-- Analytics.jsx
+			`-- Users.jsx
+```
+
+## Quick Start
+
+### 1. Prerequisites
+
+- Node.js 18+
+- npm
+- MySQL 8.0+ (or MariaDB/XAMPP)
+
+### 2. Create Database
+
+Run from project root:
+
+```bash
+mysql -u root -p < schema.sql
+```
+
+Or import `schema.sql` into a database named `hospital_db` from phpMyAdmin.
+
+### 3. Configure Backend Environment
+
+Create or update `server/.env`:
+
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=hospital_db
+SESSION_SECRET=medicore_hms_change_this
+PORT=5000
+```
+
+### 4. Install Dependencies
+
+Backend:
+
+```bash
+cd server
+npm install
+```
+
+Frontend:
+
+```bash
+cd client
+npm install
+```
+
+### 5. Run the App
+
+Terminal 1 (backend):
+
+```bash
+cd server
+npm start
+```
+
+Terminal 2 (frontend):
+
+```bash
+cd client
+npm start
+```
+
+App URLs:
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
+
+## Default Credentials
+
+| Username | Password | Role |
+| --- | --- | --- |
+| admin | admin123 | Administrator |
+| dr_smith | doctor123 | Doctor |
+| receptionist1 | recep123 | Receptionist |
+
+## Role Access Overview
+
+| Module | Admin | Doctor | Receptionist |
+| --- | --- | --- | --- |
+| Dashboard | Full | Full | Full |
+| Patients | Full | View | Full |
+| Appointments | Full | View | Full |
+| Prescriptions | Full | Full | View |
+| Bills | Full | View | Full |
+| Doctors | Full | View | View |
+| Medicines | Full | View | View |
+| Wards | Full | Full | Full |
+| Analytics | Full | Full | Full |
+| User Management | Full | No | No |
+
+## Core Modules
+
+- Authentication and session management
+- Dashboard metrics and operational snapshots
+- Patient and doctor management
+- Appointment scheduling and status tracking
+- Prescriptions and treatment notes
+- Billing and medicine mapping
+- Ward management and occupancy tracking
+- Analytics with aggregated trends
+- Admin user creation, edit, and delete
+
+## Database Design Summary
+
+Main tables:
+
+- `users`
+- `doctors`
+- `patients`
+- `appointments`
+- `prescriptions`
+- `medicines`
+- `bills`
+- `bill_medicines`
+- `wards`
+
+SQL concepts used in the project:
+
+- Multi-table joins
+- Aggregate functions with grouping
+- Views (`revenue_summary`, `ward_occupancy`, `low_stock_medicines`, `doctor_view`)
+- Triggers for billing, stock, and bed allocation updates
+
+## Security Notes
+
+- Passwords are hashed with bcrypt for newly created users.
+- Session cookies are HTTP-only.
+- Routes are protected using `requireLogin` and `requireRole` middleware.
+- Database queries use parameter placeholders to reduce SQL injection risk.
+- Change `SESSION_SECRET` before production deployment.
+
+## Troubleshooting
+
+- `ER_ACCESS_DENIED_ERROR`: verify MySQL username/password in `server/.env`.
+- Frontend cannot call API: confirm backend is running on port `5000`.
+- Login issues after role changes: clear browser cookies and log in again.
+- Port conflict: change `PORT` in `server/.env` and update frontend API base URL if needed.
+
+## License
+
+This project is intended for educational and internal use.
