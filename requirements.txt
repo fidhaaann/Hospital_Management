@@ -1,0 +1,71 @@
+MediCore HMS - Environment Requirements
+
+1) System Requirements
+- Node.js >= 18.x
+- npm >= 9.x
+- MySQL >= 8.0 (or MariaDB >= 10.6)
+- Git (optional, for version control)
+
+2) Database Requirements
+- MySQL service running on localhost:3306
+- DB user with create/read/write privileges
+- Default DB name used by app: hospital_db
+
+3) Backend Dependencies (server/package.json)
+- bcryptjs ^2.4.3
+- cors ^2.8.5
+- dotenv ^16.4.5
+- express ^4.18.3
+- express-session ^1.18.0
+- mysql2 ^3.9.7
+- nodemon ^3.1.0 (dev)
+
+4) Frontend Dependencies (client/package.json)
+- axios ^1.6.8
+- react ^18.2.0
+- react-dom ^18.2.0
+- react-router-dom ^6.22.3
+- react-scripts 5.0.1
+
+5) Setup Commands (fresh machine)
+A. Clone/copy project and open project root:
+   hospital_react
+
+B. Install server dependencies:
+   cd server
+   npm install
+
+C. Install client dependencies:
+   cd ../client
+   npm install
+
+D. Configure environment:
+   Create/update file: server/.env
+   Required keys:
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=YOUR_DB_PASSWORD
+   DB_NAME=hospital_db
+   SESSION_SECRET=change_this_secret
+   PORT=5000
+
+E. Initialize database schema (from project root):
+   mysql -u root -p < schema.sql
+
+F. Run backend (terminal 1):
+   cd server
+   npm start
+
+G. Run frontend (terminal 2):
+   cd client
+   npm start
+
+6) App URLs
+- Frontend: http://localhost:3000
+- Backend: http://localhost:5000
+- Health check: http://localhost:5000/api/health
+
+7) Default Admin Login
+- Username: admin
+- Password: admin123
+- Role: admin
