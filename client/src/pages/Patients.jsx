@@ -74,79 +74,93 @@ export default function Patients({ toast }) {
   });
 
   return (
-    <Layout pageTitle={<><i className="fas fa-user-injured" style={{ color:'var(--accent)', marginRight:8 }} />Patients</>}>
+    <Layout pageTitle={<><i className="fas fa-user-injured" style={{ color:'var(--accent-primary)', marginRight:12 }} />Patient Registry</>}>
       <div className="page-header">
-        <h2 style={{ fontWeight:700, fontSize:'1.15rem' }}>
-          <span className="text-muted" style={{ fontWeight:400, fontSize:'0.85rem' }}>Showing: {filteredPatients.length} / {patients.length} records</span>
+        <h2 style={{ fontWeight:400, fontSize:'1.4rem', fontFamily: 'var(--font-display)' }}>
+          <span className="text-secondary" style={{ fontFamily: 'var(--font-mono)', fontSize:'0.9rem', marginLeft: 16 }}>{filteredPatients.length} / {patients.length} records</span>
         </h2>
-        {canEdit && <button className="btn btn-primary btn-sm" onClick={openAdd}><i className="fas fa-plus" />Add Patient</button>}
+        {canEdit && <button className="btn btn-primary" onClick={openAdd}><i className="fas fa-plus" /> New Patient</button>}
       </div>
 
-      <div className="card" style={{ marginBottom: 14 }}>
-        <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10 }}>
-          <input
-            className="form-control"
-            placeholder="Search by name, phone, ward, or patient ID"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          <select className="form-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-            <option value="all">All status</option>
-            <option value="Outpatient">Outpatient</option>
-            <option value="Admitted">Admitted</option>
-            <option value="Discharged">Discharged</option>
-          </select>
+      <div className="card" style={{ marginBottom: 24 }}>
+        <div className="card-body" style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) 200px', gap: 16, padding: '16px 20px' }}>
+          <div className="form-group" style={{ margin: 0 }}>
+             <div style={{ position: 'relative' }}>
+                <i className="fas fa-search" style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}></i>
+                <input
+                  className="form-control"
+                  style={{ paddingLeft: 46 }}
+                  placeholder="Search by name, phone, ward, or patient ID..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+             </div>
+          </div>
+          <div className="form-group" style={{ margin: 0 }}>
+             <select className="form-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+               <option value="all">All Status</option>
+               <option value="Outpatient">Outpatient</option>
+               <option value="Admitted">Admitted</option>
+               <option value="Discharged">Discharged</option>
+             </select>
+          </div>
         </div>
       </div>
 
       <div className="card">
         {loading ? <div className="spinner-wrap"><div className="spinner"/></div> : (
-          <div className="tbl-wrap">
-            <table>
-              <thead><tr><th>#</th><th>Name</th><th>Age/Gender</th><th>Phone</th><th>Blood</th><th>Ward</th><th>Admission</th><th>Status</th>{(canEdit||canDel) && <th>Actions</th>}</tr></thead>
+          <div className="tbl-wrap" style={{ margin: 0, border: 'none', boxShadow: 'none' }}>
+            <table style={{ margin: 0 }}>
+              <thead><tr><th>#ID</th><th>Patient Name</th><th>Age/Gender</th><th>Contact</th><th>Blood</th><th>Ward</th><th>Admission</th><th>Status</th>{(canEdit||canDel) && <th style={{ textAlign: 'right' }}>Actions</th>}</tr></thead>
               <tbody>
-                {filteredPatients.length ? filteredPatients.map(p => (
+                {filteredPatients.length ? filteredPatients.map((p, idx) => (
                   <tr key={p.patient_id}>
-                    <td className="text-muted font-mono" style={{ fontSize:'0.75rem' }}>#{p.patient_id}</td>
-                    <td><strong>{p.name}</strong></td>
-                    <td>{p.age} / {p.gender}</td>
-                    <td>{p.phone}</td>
-                    <td>{p.blood_group ? <span className="badge" style={{ background:'#fee2e2', color:'#991b1b' }}>{p.blood_group}</span> : '—'}</td>
-                    <td>{p.ward_name || '—'}</td>
-                    <td style={{ fontSize:'0.8rem' }}>{p.admission_date ? new Date(p.admission_date).toLocaleDateString('en-IN') : '—'}</td>
+                    <td className="text-muted font-mono" style={{ fontSize:'0.85rem' }}>#{String(p.patient_id).padStart(4, '0')}</td>
+                    <td style={{ fontWeight: 600 }}>{p.name}</td>
+                    <td>{p.age} / {p.gender.charAt(0)}</td>
+                    <td className="font-mono">{p.phone}</td>
+                    <td>{p.blood_group ? <span className="badge" style={{ background:'rgba(255, 71, 87, 0.1)', color:'var(--danger)', border: '1px solid rgba(255, 71, 87, 0.2)' }}>{p.blood_group}</span> : '—'}</td>
+                    <td className="text-secondary">{p.ward_name || '—'}</td>
+                    <td className="font-mono" style={{ fontSize:'0.85rem' }}>{p.admission_date ? new Date(p.admission_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</td>
                     <td><span className={`badge badge-${p.status?.toLowerCase()}`}>{p.status}</span></td>
                     {(canEdit||canDel) && (
-                      <td>
-                        <div style={{ display:'flex', gap:6 }}>
-                          {canEdit && <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(p)} title="Edit"><i className="fas fa-edit"/></button>}
-                          {canDel  && <button className="btn btn-danger btn-icon btn-sm" onClick={() => setDeleteId(p.patient_id)} title="Delete"><i className="fas fa-trash"/></button>}
+                      <td style={{ textAlign: 'right' }}>
+                        <div style={{ display:'flex', gap:6, justifyContent: 'flex-end' }}>
+                          {canEdit && <button className="btn-icon" onClick={() => openEdit(p)} title="Edit"><i className="fas fa-edit"/></button>}
+                          {canDel  && <button className="btn-icon" onClick={() => setDeleteId(p.patient_id)} title="Delete" style={{ color: 'var(--danger)' }}><i className="fas fa-trash"/></button>}
                         </div>
                       </td>
                     )}
                   </tr>
-                )) : <tr><td colSpan={9}><div className="empty-state"><i className="fas fa-user-injured" />No patients match the filters.</div></td></tr>}
+                )) : <tr><td colSpan={9}><div className="empty-state"><i className="fas fa-clipboard-check" />No patients match the current filters.</div></td></tr>}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      {/* Modal */}
+      {/* Drawer-style Modal for Edit/Add */}
       {modal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal modal-lg" onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={closeModal} style={{ justifyContent: 'flex-end', padding: 0 }}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{ 
+            height: '100vh', maxHeight: '100vh', margin: 0, borderRadius: 0, maxWidth: 540,
+            display: 'flex', flexDirection: 'column', animation: 'slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
             <div className="modal-header">
-              <h3><i className="fas fa-user-injured" style={{ color:'var(--primary-mid)', marginRight:8 }} />{editId ? 'Edit Patient' : 'Add New Patient'}</h3>
-              <button className="btn btn-ghost btn-icon btn-sm" onClick={closeModal}><i className="fas fa-xmark"/></button>
+              <h3 style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <i className="fas fa-user-injured" style={{ color:'var(--accent-primary)' }} />
+                {editId ? 'Edit Patient Record' : 'Register New Patient'}
+              </h3>
+              <button className="btn-icon" onClick={closeModal}><i className="fas fa-xmark"/></button>
             </div>
-            <form onSubmit={handleSave}>
-              <div className="modal-body">
+            <form onSubmit={handleSave} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div className="modal-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <div className="row row-2">
                   <div className="form-group">
                     <label className="form-label">Full Name *</label>
                     <input className="form-control" required value={form.name} onChange={e => setForm(f=>({...f,name:e.target.value}))} placeholder="Patient full name" />
                   </div>
-                  <div className="row" style={{ gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                  <div className="row" style={{ gridTemplateColumns:'1fr 1fr', gap:16 }}>
                     <div className="form-group">
                       <label className="form-label">Age *</label>
                       <input type="number" className="form-control" required min="1" max="119" value={form.age} onChange={e=>setForm(f=>({...f,age:e.target.value}))} />
@@ -162,8 +176,8 @@ export default function Patients({ toast }) {
                 </div>
                 <div className="row row-2">
                   <div className="form-group">
-                    <label className="form-label">Phone *</label>
-                    <input className="form-control" required value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} />
+                    <label className="form-label">Phone Contact *</label>
+                    <input className="form-control" required value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} placeholder="e.g. +91 9876543210" />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Blood Group</label>
@@ -174,10 +188,15 @@ export default function Patients({ toast }) {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Address</label>
-                  <textarea className="form-control" rows={2} value={form.address} onChange={e=>setForm(f=>({...f,address:e.target.value}))} />
+                  <label className="form-label">Residential Address</label>
+                  <textarea className="form-control" rows={3} value={form.address} onChange={e=>setForm(f=>({...f,address:e.target.value}))} placeholder="Full address" />
                 </div>
-                <div className="row row-3">
+                
+                <div className="page-header" style={{ marginTop: 32, marginBottom: 16 }}>
+                  <h2 style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}><i className="fas fa-hospital" style={{ fontSize: '1rem' }} /> Admission Details</h2>
+                </div>
+
+                <div className="row row-2">
                   <div className="form-group">
                     <label className="form-label">Admission Date *</label>
                     <input type="date" className="form-control" required value={form.admission_date} onChange={e=>setForm(f=>({...f,admission_date:e.target.value}))} />
@@ -188,25 +207,27 @@ export default function Patients({ toast }) {
                       <input type="date" className="form-control" value={form.discharge_date} onChange={e=>setForm(f=>({...f,discharge_date:e.target.value}))} />
                     </div>
                   )}
+                </div>
+                <div className="row row-2">
                   <div className="form-group">
-                    <label className="form-label">Status</label>
+                    <label className="form-label">Current Status</label>
                     <select className="form-select" value={form.status} onChange={e=>setForm(f=>({...f,status:e.target.value}))}>
                       {['Outpatient','Admitted','Discharged'].map(s=><option key={s}>{s}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Ward</label>
-                    <select className="form-select" value={form.ward_id} onChange={e=>setForm(f=>({...f,ward_id:e.target.value}))}>
-                      <option value="">No ward</option>
-                      {wards.map(w=><option key={w.ward_id} value={w.ward_id}>{w.ward_name} ({w.available_beds} beds)</option>)}
+                    <label className="form-label">Assigned Ward</label>
+                    <select className="form-select" value={form.ward_id} onChange={e=>setForm(f=>({...f,ward_id:e.target.value}))} disabled={form.status === 'Outpatient' || form.status === 'Discharged'}>
+                      <option value="">No ward assigned</option>
+                      {wards.map(w=><option key={w.ward_id} value={w.ward_id}>{w.ward_name} ({w.available_beds} beds available)</option>)}
                     </select>
                   </div>
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-ghost btn-sm" onClick={closeModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-                  {saving ? <><span className="spinner" style={{width:14,height:14,borderWidth:2}}/>Saving…</> : <><i className="fas fa-save"/>{editId?'Update':'Add Patient'}</>}
+                <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? <><span className="spinner" style={{width:16,height:16,borderWidth:2}}/> Saving...</> : <><i className="fas fa-save"/> {editId?'Update Record':'Save Patient'}</>}
                 </button>
               </div>
             </form>
@@ -214,7 +235,7 @@ export default function Patients({ toast }) {
         </div>
       )}
 
-      {deleteId && <ConfirmDialog message="Delete this patient? This cannot be undone." onConfirm={handleDelete} onCancel={() => setDeleteId(null)} />}
+      {deleteId && <ConfirmDialog message="Delete this patient record? This action cannot be undone." onConfirm={handleDelete} onCancel={() => setDeleteId(null)} />}
     </Layout>
   );
 }
