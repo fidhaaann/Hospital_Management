@@ -31,7 +31,7 @@ export default function Login() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'var(--bg)',
+      background: 'radial-gradient(ellipse at center, #e8f4ff 0%, #c5e0ff 35%, #93c5fd 65%, #3b82f6 100%)',
       position: 'relative', overflow: 'hidden', padding: 24,
     }}>
       {/* Premium background decorative blur elements */}
@@ -61,7 +61,17 @@ export default function Login() {
           }}>
             <i className="fas fa-heart-pulse" />
           </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: 'var(--text-primary)', marginBottom: 8, lineHeight: 1 }}>
+          <h1 style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: '2.8rem',
+            letterSpacing: '0.12em',
+            lineHeight: 1,
+            marginBottom: 8,
+            background: 'linear-gradient(135deg, var(--accent-primary) 0%, #0099FF 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
             MediCore
           </h1>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontFamily: 'var(--font-body)', letterSpacing: '0.02em', margin: 0 }}>Precision Healthcare Administration</p>
