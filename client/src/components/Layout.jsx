@@ -57,7 +57,7 @@ export default function Layout({ children, pageTitle, toast }) {
     <div className="layout-root" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
       {/* ── Sidebar ── */}
       <nav style={{
-        width: sidebarW, minHeight: '100vh', position: 'fixed', top: 0, left: 0,
+        width: sidebarW, height: '100vh', position: 'fixed', top: 0, left: 0,
         background: 'var(--surface)', display: 'flex', flexDirection: 'column', zIndex: 200,
         transition: 'width var(--transition-normal)', overflowX: 'hidden',
         borderRight: '1px solid var(--border)'
