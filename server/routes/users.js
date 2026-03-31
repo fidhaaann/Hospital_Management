@@ -12,12 +12,28 @@ function randomToken(length) {
   return out;
 }
 
-async function generateUniqueUsername(role) {
-  const prefix = role === 'doctor' ? 'dr' : 'rcp';
-  for (let i = 0; i < 20; i += 1) {
-    const candidate = `${prefix}${randomToken(6).toLowerCase()}`;
-    const [rows] = await pool.query('SELECT user_id FROM users WHERE username = ?', [candidate]);
-    if (!rows.length) return candidate;
+async function generateUniqueUsername(role, fullName) {
+  const firstName = (fullName || 'user').split(' ')[0].toLowerCase().replace(/[^a-z]/g, '');
+
+  if (role === 'doctor') {
+    for (let i = 1; i <= 10; i += 1) {
+      const candidate = `${firstName}${i}`;
+      const [rows] = await pool.query('SELECT user_id FROM users WHERE username = ?', [candidate]);
+      if (!rows.length) return candidate;
+    }
+    return `${firstName}${Math.floor(Math.random() * 1000)}`;
+  } else if (role === 'receptionist') {
+    const baseCandidate = `${firstName}staff`;
+    const [rows] = await pool.query('SELECT user_id FROM users WHERE username = ?', [baseCandidate]);
+    if (!rows.length) return baseCandidate;
+    
+    for (let i = 1; i <= 20; i += 1) {
+      const candidate = `${baseCandidate}${i}`;
+      const [subRows] = await pool.query('SELECT user_id FROM users WHERE username = ?', [candidate]);
+      if (!subRows.length) return candidate;
+    }
+  } else {
+    return `${role}${Math.floor(Math.random() * 10000)}`;
   }
   throw new Error('Failed to generate a unique username. Try again.');
 }
@@ -57,7 +73,7 @@ router.post('/', requireLogin, requireRole('admin'), async (req, res) => {
       return res.status(400).json({ error: 'Only doctor and receptionist accounts can be created.' });
     }
 
-    const username = await generateUniqueUsername(role);
+    const username = await generateUniqueUsername(role, full_name);
     const password = randomToken(10);
     const hashed = await bcrypt.hash(password, 10);
 

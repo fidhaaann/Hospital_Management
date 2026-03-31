@@ -33,6 +33,7 @@ app.use('/api/medicines',     require('./routes/medicines'));
 app.use('/api/wards',         require('./routes/wards'));
 app.use('/api/analytics',     require('./routes/analytics'));
 app.use('/api/users',         require('./routes/users'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // ── Health check ─────────────────────────────────────────────
 app.get('/api/health', (_, res) => res.json({ status: 'ok', time: new Date() }));
