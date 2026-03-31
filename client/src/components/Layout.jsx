@@ -34,10 +34,71 @@ export default function Layout({ children, pageTitle, toast }) {
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('medicore-theme') || 'light');
   const [showDrawer, setShowDrawer] = useState(false);
-  const [notifications] = useState([
-    { id: 1, type: 'critical', text: 'Dr. Smith requested immediate lab results.', time: '2m ago' },
-    { id: 2, type: 'system', text: 'System backup completed successfully.', time: '1h ago' },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [showCompose, setShowCompose] = useState(false);
+  const [composeMsg, setComposeMsg] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState(''); // empty string means 'All Doctors'
+
+  useEffect(() => {
+    if (showCompose && doctors.length === 0) {
+      fetch('http://localhost:5000/api/notifications/doctors-list', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => setDoctors(Array.isArray(data) ? data : []))
+        .catch(err => console.error(err));
+    }
+  }, [showCompose, doctors.length]);
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000); // refresh every 15s
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/notifications', { credentials: 'include' });
+      if (res.ok) setNotifications(await res.json());
+    } catch (err) { }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await fetch('http://localhost:5000/api/notifications/read', { method: 'PUT', credentials: 'include' });
+      setNotifications(notifications.map(n => ({ ...n, is_read: 1 })));
+    } catch (err) { }
+  };
+
+  const handleSendNote = async () => {
+    if (!composeMsg.trim()) return;
+    setIsSending(true);
+    
+    // If a specific doctor is selected, recipient_role is null and recipient_id is their user_id.
+    // Otherwise, recipient_role = 'doctor' stands for all doctors
+    const recipient_role = selectedDoctorId ? null : 'doctor';
+    const recipient_id = selectedDoctorId || null;
+
+    try {
+      const res = await fetch('http://localhost:5000/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ message: composeMsg, recipient_role, recipient_id, type: 'message' }),
+      });
+      if (res.ok) {
+        setShowCompose(false);
+        setComposeMsg('');
+        if (toast) toast.success('Note sent successfully');
+        else alert('Note sent successfully!');
+        fetchNotifications();
+      } else alert('Failed to send note.');
+    } catch (err) {
+      alert('Error sending note.');
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -177,10 +238,19 @@ export default function Layout({ children, pageTitle, toast }) {
               </div>
             </div>
 
+            {/* Create Message Button (only for non-doctors) */}
+            {user?.role !== 'doctor' && (
+              <button className="btn-icon" onClick={() => setShowCompose(true)} title="Send Note to Doctors">
+                <i className="fas fa-envelope"></i>
+              </button>
+            )}
+
             {/* Notification Bell */}
             <button className="btn-icon" onClick={() => setShowDrawer(true)} style={{ position: 'relative' }}>
               <i className="fas fa-bell"></i>
-              <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, background: 'var(--danger)', borderRadius: '50%', animation: 'pulse 2s infinite' }}></span>
+              {notifications.some(n => !n.is_read) && (
+                <span style={{ position: 'absolute', top: 6, right: 6, width: 8, height: 8, background: 'var(--danger)', borderRadius: '50%', animation: 'pulse 2s infinite' }}></span>
+              )}
             </button>
           </div>
         </div>
@@ -206,24 +276,68 @@ export default function Layout({ children, pageTitle, toast }) {
                   <button className="btn-icon" onClick={() => setShowDrawer(false)}><i className="fas fa-times"></i></button>
                </div>
                <div style={{ padding: '24px 28px', flex: 1, overflowY: 'auto' }}>
-                  {notifications.map(n => (
+                  {notifications.length === 0 ? (
+                    <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 40 }}>No notifications</div>
+                  ) : notifications.map(n => (
                      <div key={n.id} style={{ 
                         padding: '16px', marginBottom: 16, borderRadius: 'var(--radius-md)', 
-                        background: 'var(--surface-hover)', borderLeft: `4px solid ${n.type === 'critical' ? 'var(--danger)' : 'var(--info)'}`
+                        background: n.is_read ? 'transparent' : 'var(--surface-hover)', 
+                        border: '1px solid var(--border)',
+                        borderLeft: `4px solid ${n.type === 'critical' ? 'var(--danger)' : n.type === 'message' ? 'var(--accent-primary)' : 'var(--info)'}`
                      }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                           <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)', textTransform: 'capitalize' }}>{n.type} Alert</strong>
-                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{n.time}</span>
+                           <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                              {n.type === 'message' && n.sender_name ? `Note from ${n.sender_name}` : `${n.type} Alert`}
+                              {!n.is_read && <span style={{ marginLeft: 8, color: 'var(--danger)', fontSize: '0.7rem', fontWeight: 900 }}>NEW</span>}
+                           </strong>
+                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(n.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                         </div>
-                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{n.text}</p>
+                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{n.message}</p>
                      </div>
                   ))}
                </div>
                <div style={{ padding: '20px 28px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-                 <button className="btn btn-ghost" style={{ width: '100%' }} onClick={() => setShowDrawer(false)}>Mark all as read</button>
+                 <button className="btn btn-ghost" style={{ width: '100%' }} onClick={handleMarkAllRead}>Mark all as read</button>
                </div>
             </div>
          </div>
+      )}
+
+      {/* Compose Note Modal */}
+      {showCompose && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'fadeIn 0.2s ease' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }} onClick={() => setShowCompose(false)}></div>
+          <div style={{ background: 'var(--surface)', padding: 32, borderRadius: 'var(--radius-lg)', width: 400, position: 'relative', boxShadow: 'var(--shadow-xl)' }}>
+            <h3 style={{ marginTop: 0, marginBottom: 16 }}>Send Note to Doctors</h3>
+            
+            <div style={{ marginBottom: 16 }}>
+               <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: 8 }}>Recipient</label>
+               <select 
+                  value={selectedDoctorId} 
+                  onChange={e => setSelectedDoctorId(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)' }}
+               >
+                  <option value="">All Doctors (Broadcast)</option>
+                  {doctors.map(doc => (
+                     <option key={doc.user_id} value={doc.user_id}>Dr. {doc.full_name}</option>
+                  ))}
+               </select>
+            </div>
+
+            <textarea 
+              value={composeMsg}
+              onChange={e => setComposeMsg(e.target.value)}
+              placeholder="Type your message here..."
+              style={{ width: '100%', minHeight: 120, boxSizing: 'border-box', padding: 12, borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)', fontFamily: 'inherit', resize: 'vertical' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
+              <button className="btn btn-ghost" onClick={() => setShowCompose(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleSendNote} disabled={isSending}>
+                {isSending ? 'Sending...' : 'Send Note'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {confirmLogout && (
